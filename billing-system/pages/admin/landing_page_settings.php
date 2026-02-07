@@ -886,42 +886,49 @@ $activeTab = $_GET['tab'] ?? 'content';
                 <div class="row g-4">
                     <div class="col-md-4">
                         <div class="form-check form-switch">
+                            <input type="hidden" name="settings[show_stats]" value="0">
                             <input class="form-check-input" type="checkbox" name="settings[show_stats]" value="1" id="showStats" <?= ($settingsMap['show_stats']['setting_value'] ?? '1') === '1' ? 'checked' : '' ?>>
                             <label class="form-check-label" for="showStats">実績数字を表示</label>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-check form-switch">
+                            <input type="hidden" name="settings[show_gallery]" value="0">
                             <input class="form-check-input" type="checkbox" name="settings[show_gallery]" value="1" id="showGallery" <?= ($settingsMap['show_gallery']['setting_value'] ?? '1') === '1' ? 'checked' : '' ?>>
                             <label class="form-check-label" for="showGallery">お弁当ギャラリーを表示</label>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-check form-switch">
+                            <input type="hidden" name="settings[show_testimonials]" value="0">
                             <input class="form-check-input" type="checkbox" name="settings[show_testimonials]" value="1" id="showTestimonials" <?= ($settingsMap['show_testimonials']['setting_value'] ?? '1') === '1' ? 'checked' : '' ?>>
                             <label class="form-check-label" for="showTestimonials">お客様の声を表示</label>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-check form-switch">
+                            <input type="hidden" name="settings[show_partners]" value="0">
                             <input class="form-check-input" type="checkbox" name="settings[show_partners]" value="1" id="showPartners" <?= ($settingsMap['show_partners']['setting_value'] ?? '1') === '1' ? 'checked' : '' ?>>
                             <label class="form-check-label" for="showPartners">導入企業ロゴを表示</label>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-check form-switch">
+                            <input type="hidden" name="settings[show_faq]" value="0">
                             <input class="form-check-input" type="checkbox" name="settings[show_faq]" value="1" id="showFaq" <?= ($settingsMap['show_faq']['setting_value'] ?? '1') === '1' ? 'checked' : '' ?>>
                             <label class="form-check-label" for="showFaq">FAQを表示</label>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-check form-switch">
+                            <input type="hidden" name="settings[show_company_info]" value="0">
                             <input class="form-check-input" type="checkbox" name="settings[show_company_info]" value="1" id="showCompanyInfo" <?= ($settingsMap['show_company_info']['setting_value'] ?? '1') === '1' ? 'checked' : '' ?>>
                             <label class="form-check-label" for="showCompanyInfo">会社情報を表示</label>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-check form-switch">
+                            <input type="hidden" name="settings[show_sticky_cta]" value="0">
                             <input class="form-check-input" type="checkbox" name="settings[show_sticky_cta]" value="1" id="showStickyCta" <?= ($settingsMap['show_sticky_cta']['setting_value'] ?? '1') === '1' ? 'checked' : '' ?>>
                             <label class="form-check-label" for="showStickyCta">モバイル固定CTAを表示</label>
                         </div>
