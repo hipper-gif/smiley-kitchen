@@ -258,10 +258,9 @@ $showStickyCta = $config['show_sticky_cta'] === '1';
 
         .hero-bg-mobile {
             display: none;
-            width: 100%;
-            height: 250px;
-            border-radius: var(--radius-lg);
-            overflow: hidden;
+            width: 100vw;
+            height: 280px;
+            margin-left: calc(-50vw + 50%);
             margin-bottom: 32px;
         }
 
