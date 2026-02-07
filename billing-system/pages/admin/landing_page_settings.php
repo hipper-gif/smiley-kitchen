@@ -66,31 +66,86 @@ try {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
+    $db->exec("CREATE TABLE IF NOT EXISTS landing_page_faq (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        question VARCHAR(500) NOT NULL,
+        answer TEXT NOT NULL,
+        display_order INT DEFAULT 0,
+        is_active TINYINT(1) DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    $db->exec("CREATE TABLE IF NOT EXISTS landing_page_menus (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        menu_name VARCHAR(200) NOT NULL,
+        menu_description TEXT,
+        menu_price INT DEFAULT 0,
+        menu_image VARCHAR(500),
+        menu_tag VARCHAR(100),
+        display_order INT DEFAULT 0,
+        is_active TINYINT(1) DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
     // デフォルト設定
     $defaults = [
         ['hero_title', 'おいしいお弁当を<br>あなたの職場へ', 'ヒーロータイトル', 'textarea', 1],
         ['hero_subtitle', '毎日の昼食をもっと楽しく、もっと手軽に', 'ヒーローサブタイトル', 'text', 2],
         ['hero_cta_text', '無料で始める', 'CTAボタンテキスト', 'text', 3],
-        ['feature1_title', 'かんたん注文', '特徴1 タイトル', 'text', 10],
-        ['feature1_desc', 'スマホから3タップで注文完了。忙しい朝でもサクッと注文できます。', '特徴1 説明', 'textarea', 11],
-        ['feature1_icon', 'touch_app', '特徴1 アイコン', 'icon', 12],
-        ['feature2_title', '栄養バランス', '特徴2 タイトル', 'text', 20],
-        ['feature2_desc', '管理栄養士監修のメニューで、健康的な食生活をサポートします。', '特徴2 説明', 'textarea', 21],
-        ['feature2_icon', 'favorite', '特徴2 アイコン', 'icon', 22],
-        ['feature3_title', '職場へお届け', '特徴3 タイトル', 'text', 30],
-        ['feature3_desc', 'お昼時にオフィスまでお届け。外出不要でランチタイムを有効活用。', '特徴3 説明', 'textarea', 31],
-        ['feature3_icon', 'local_shipping', '特徴3 アイコン', 'icon', 32],
+        ['hero_cta_sub', '初月無料キャンペーン中', 'CTAサブテキスト', 'text', 4],
+        // 実績数字
+        ['stat1_value', '150+', '実績1 数値', 'text', 5],
+        ['stat1_label', '導入企業数', '実績1 ラベル', 'text', 6],
+        ['stat2_value', '50,000+', '実績2 数値', 'text', 7],
+        ['stat2_label', '月間配食数', '実績2 ラベル', 'text', 8],
+        ['stat3_value', '98%', '実績3 数値', 'text', 9],
+        ['stat3_label', '満足度', '実績3 ラベル', 'text', 10],
+        // 特徴
+        ['feature1_title', 'かんたん注文', '特徴1 タイトル', 'text', 11],
+        ['feature1_desc', 'スマホから3タップで注文完了。忙しい朝でもサクッと注文できます。', '特徴1 説明', 'textarea', 12],
+        ['feature1_icon', 'touch_app', '特徴1 アイコン', 'icon', 13],
+        ['feature2_title', '栄養バランス', '特徴2 タイトル', 'text', 14],
+        ['feature2_desc', '管理栄養士監修のメニューで、健康的な食生活をサポートします。', '特徴2 説明', 'textarea', 15],
+        ['feature2_icon', 'favorite', '特徴2 アイコン', 'icon', 16],
+        ['feature3_title', '職場へお届け', '特徴3 タイトル', 'text', 17],
+        ['feature3_desc', 'お昼時にオフィスまでお届け。外出不要でランチタイムを有効活用。', '特徴3 説明', 'textarea', 18],
+        ['feature3_icon', 'local_shipping', '特徴3 アイコン', 'icon', 19],
+        // ご利用の流れ
+        ['step1_title', 'アカウント登録', 'ステップ1 タイトル', 'text', 20],
+        ['step1_desc', '企業コードとメールアドレスで簡単登録。1分で完了します。', 'ステップ1 説明', 'textarea', 21],
+        ['step2_title', 'メニューを選ぶ', 'ステップ2 タイトル', 'text', 22],
+        ['step2_desc', '日替わり・週替わりメニューから好きなお弁当を選択。前日までに注文できます。', 'ステップ2 説明', 'textarea', 23],
+        ['step3_title', '職場でお受け取り', 'ステップ3 タイトル', 'text', 24],
+        ['step3_desc', 'お昼時にオフィスまでお届け。あとは美味しくいただくだけ。', 'ステップ3 説明', 'textarea', 25],
+        // メニューセクション
+        ['menu_title', '人気のお弁当', 'メニュータイトル', 'text', 30],
+        ['menu_subtitle', '毎日届く、手作りの味わい', 'メニューサブタイトル', 'text', 31],
+        ['menu_price_text', '1食あたり', 'メニュー価格表示', 'text', 32],
+        ['menu_price_from', '480', '最低価格', 'text', 33],
+        // ギャラリー
         ['gallery_title', '本日のお弁当', 'ギャラリーセクションタイトル', 'text', 40],
         ['gallery_subtitle', '毎日届く、手作りの味わい', 'ギャラリーサブタイトル', 'text', 41],
         ['testimonial_title', 'ご利用企業様の声', 'お客様の声タイトル', 'text', 45],
-        ['primary_color', '#5D8A4A', 'メインカラー', 'color', 50],
-        ['accent_color', '#E8B86D', 'アクセントカラー', 'color', 51],
-        ['company_name', 'Smiley Kitchen', '会社名', 'text', 60],
-        ['contact_phone', '', '電話番号', 'text', 61],
-        ['contact_email', '', 'メールアドレス', 'text', 62],
-        ['show_gallery', '1', 'ギャラリーを表示', 'toggle', 70],
-        ['show_testimonials', '1', 'お客様の声を表示', 'toggle', 71],
-        ['show_partners', '1', 'パートナーロゴを表示', 'toggle', 72],
+        // 会社情報
+        ['company_name', 'Smiley Kitchen', '会社名', 'text', 50],
+        ['company_address', '', '住所', 'text', 51],
+        ['contact_phone', '', '電話番号', 'text', 52],
+        ['contact_email', '', 'メールアドレス', 'text', 53],
+        ['business_hours', '平日 9:00〜18:00', '営業時間', 'text', 54],
+        // CTA
+        ['cta_title', '今日から始めませんか？', 'CTAセクションタイトル', 'text', 55],
+        ['cta_subtitle', '登録は無料。すぐに注文を始められます。', 'CTAセクションサブタイトル', 'text', 56],
+        // デザイン
+        ['primary_color', '#5D8A4A', 'メインカラー', 'color', 60],
+        ['accent_color', '#E8B86D', 'アクセントカラー', 'color', 61],
+        // 表示設定
+        ['show_stats', '1', '実績数字を表示', 'toggle', 70],
+        ['show_gallery', '1', 'ギャラリーを表示', 'toggle', 71],
+        ['show_testimonials', '1', 'お客様の声を表示', 'toggle', 72],
+        ['show_partners', '1', 'パートナーロゴを表示', 'toggle', 73],
+        ['show_faq', '1', 'FAQを表示', 'toggle', 74],
+        ['show_company_info', '1', '会社情報を表示', 'toggle', 75],
+        ['show_sticky_cta', '1', 'モバイル固定CTAを表示', 'toggle', 76],
     ];
 
     $stmt = $db->prepare("INSERT IGNORE INTO landing_page_settings (setting_key, setting_value, setting_label, setting_type, display_order) VALUES (?, ?, ?, ?, ?)");
@@ -167,6 +222,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $stmt->execute([(int)$_POST['testimonial_id']]);
         $message = 'お客様の声を削除しました';
     }
+
+    if ($action === 'add_faq') {
+        $stmt = $db->prepare("INSERT INTO landing_page_faq (question, answer) VALUES (?, ?)");
+        $stmt->execute([
+            $_POST['faq_question'] ?? '',
+            $_POST['faq_answer'] ?? ''
+        ]);
+        $message = 'FAQを追加しました';
+    }
+
+    if ($action === 'delete_faq' && isset($_POST['faq_id'])) {
+        $stmt = $db->prepare("DELETE FROM landing_page_faq WHERE id = ?");
+        $stmt->execute([(int)$_POST['faq_id']]);
+        $message = 'FAQを削除しました';
+    }
+
+    if ($action === 'add_menu') {
+        $menuImage = '';
+        if (isset($_FILES['menu_image']) && $_FILES['menu_image']['error'] === UPLOAD_ERR_OK) {
+            $ext = strtolower(pathinfo($_FILES['menu_image']['name'], PATHINFO_EXTENSION));
+            $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            if (in_array($ext, $allowed)) {
+                $filename = uniqid() . '_' . time() . '.' . $ext;
+                $targetPath = "$uploadBase/gallery/$filename";
+                if (move_uploaded_file($_FILES['menu_image']['tmp_name'], $targetPath)) {
+                    $menuImage = "uploads/gallery/$filename";
+                }
+            }
+        }
+        $stmt = $db->prepare("INSERT INTO landing_page_menus (menu_name, menu_description, menu_price, menu_image, menu_tag) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([
+            $_POST['menu_name'] ?? '',
+            $_POST['menu_description'] ?? '',
+            (int)($_POST['menu_price'] ?? 0),
+            $menuImage,
+            $_POST['menu_tag'] ?? ''
+        ]);
+        $message = 'メニューを追加しました';
+    }
+
+    if ($action === 'delete_menu' && isset($_POST['menu_id'])) {
+        $stmt = $db->prepare("SELECT menu_image FROM landing_page_menus WHERE id = ?");
+        $stmt->execute([(int)$_POST['menu_id']]);
+        $menu = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($menu && !empty($menu['menu_image'])) {
+            $filePath = "$uploadBase/../" . $menu['menu_image'];
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
+        $stmt = $db->prepare("DELETE FROM landing_page_menus WHERE id = ?");
+        $stmt->execute([(int)$_POST['menu_id']]);
+        $message = 'メニューを削除しました';
+    }
 }
 
 // 設定更新
@@ -205,6 +314,18 @@ $testimonials = [];
 try {
     $stmt = $db->query("SELECT * FROM landing_page_testimonials WHERE is_active = 1 ORDER BY display_order, id DESC");
     $testimonials = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {}
+
+$faqs = [];
+try {
+    $stmt = $db->query("SELECT * FROM landing_page_faq WHERE is_active = 1 ORDER BY display_order, id");
+    $faqs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {}
+
+$menus = [];
+try {
+    $stmt = $db->query("SELECT * FROM landing_page_menus WHERE is_active = 1 ORDER BY display_order, id");
+    $menus = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {}
 
 // タブ
@@ -281,7 +402,9 @@ $activeTab = $_GET['tab'] ?? 'content';
         <ul class="nav nav-tabs mb-4">
             <li class="nav-item"><a class="nav-link <?= $activeTab === 'content' ? 'active' : '' ?>" href="?tab=content">コンテンツ</a></li>
             <li class="nav-item"><a class="nav-link <?= $activeTab === 'images' ? 'active' : '' ?>" href="?tab=images">画像・ロゴ</a></li>
+            <li class="nav-item"><a class="nav-link <?= $activeTab === 'menus' ? 'active' : '' ?>" href="?tab=menus">メニュー</a></li>
             <li class="nav-item"><a class="nav-link <?= $activeTab === 'testimonials' ? 'active' : '' ?>" href="?tab=testimonials">お客様の声</a></li>
+            <li class="nav-item"><a class="nav-link <?= $activeTab === 'faq' ? 'active' : '' ?>" href="?tab=faq">FAQ</a></li>
             <li class="nav-item"><a class="nav-link <?= $activeTab === 'design' ? 'active' : '' ?>" href="?tab=design">デザイン</a></li>
         </ul>
 
@@ -338,11 +461,65 @@ $activeTab = $_GET['tab'] ?? 'content';
             <?php endfor; ?>
 
             <div class="settings-card">
+                <h3><span class="material-icons-outlined">analytics</span>実績数字（トラストバー）</h3>
+                <div class="row g-3">
+                    <?php for ($i = 1; $i <= 3; $i++): ?>
+                    <div class="col-md-2">
+                        <label class="form-label">数値<?= $i ?></label>
+                        <input type="text" name="settings[stat<?= $i ?>_value]" class="form-control" value="<?= htmlspecialchars($settingsMap["stat{$i}_value"]['setting_value'] ?? '') ?>" placeholder="例: 150+">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">ラベル<?= $i ?></label>
+                        <input type="text" name="settings[stat<?= $i ?>_label]" class="form-control" value="<?= htmlspecialchars($settingsMap["stat{$i}_label"]['setting_value'] ?? '') ?>" placeholder="例: 導入企業数">
+                    </div>
+                    <?php endfor; ?>
+                </div>
+            </div>
+
+            <div class="settings-card">
+                <h3><span class="material-icons-outlined">format_list_numbered</span>ご利用の流れ</h3>
+                <?php for ($i = 1; $i <= 3; $i++): ?>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">ステップ<?= $i ?> タイトル</label>
+                        <input type="text" name="settings[step<?= $i ?>_title]" class="form-control" value="<?= htmlspecialchars($settingsMap["step{$i}_title"]['setting_value'] ?? '') ?>">
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">ステップ<?= $i ?> 説明</label>
+                        <input type="text" name="settings[step<?= $i ?>_desc]" class="form-control" value="<?= htmlspecialchars($settingsMap["step{$i}_desc"]['setting_value'] ?? '') ?>">
+                    </div>
+                </div>
+                <?php endfor; ?>
+            </div>
+
+            <div class="settings-card">
+                <h3><span class="material-icons-outlined">campaign</span>CTAセクション</h3>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">CTAタイトル</label>
+                        <input type="text" name="settings[cta_title]" class="form-control" value="<?= htmlspecialchars($settingsMap['cta_title']['setting_value'] ?? '今日から始めませんか？') ?>">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">CTAサブタイトル</label>
+                        <input type="text" name="settings[cta_subtitle]" class="form-control" value="<?= htmlspecialchars($settingsMap['cta_subtitle']['setting_value'] ?? '') ?>">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">CTAサブテキスト（ヒーロー下）</label>
+                        <input type="text" name="settings[hero_cta_sub]" class="form-control" value="<?= htmlspecialchars($settingsMap['hero_cta_sub']['setting_value'] ?? '') ?>" placeholder="例: 初月無料キャンペーン中">
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-card">
                 <h3><span class="material-icons-outlined">business</span>会社情報</h3>
                 <div class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label class="form-label">会社名・サービス名</label>
                         <input type="text" name="settings[company_name]" class="form-control" value="<?= htmlspecialchars($settingsMap['company_name']['setting_value'] ?? '') ?>">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">住所</label>
+                        <input type="text" name="settings[company_address]" class="form-control" value="<?= htmlspecialchars($settingsMap['company_address']['setting_value'] ?? '') ?>">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">電話番号</label>
@@ -351,6 +528,10 @@ $activeTab = $_GET['tab'] ?? 'content';
                     <div class="col-md-4">
                         <label class="form-label">メールアドレス</label>
                         <input type="email" name="settings[contact_email]" class="form-control" value="<?= htmlspecialchars($settingsMap['contact_email']['setting_value'] ?? '') ?>">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">営業時間</label>
+                        <input type="text" name="settings[business_hours]" class="form-control" value="<?= htmlspecialchars($settingsMap['business_hours']['setting_value'] ?? '') ?>" placeholder="例: 平日 9:00〜18:00">
                     </div>
                 </div>
             </div>
@@ -544,6 +725,137 @@ $activeTab = $_GET['tab'] ?? 'content';
             <?php endif; ?>
         </div>
 
+        <?php elseif ($activeTab === 'menus'): ?>
+        <!-- メニュータブ -->
+        <div class="settings-card">
+            <h3><span class="material-icons-outlined">restaurant_menu</span>メニューを追加</h3>
+            <form method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="add_menu">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">メニュー名</label>
+                        <input type="text" name="menu_name" class="form-control" required placeholder="例: 日替わり弁当">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">価格（税込）</label>
+                        <div class="input-group">
+                            <input type="number" name="menu_price" class="form-control" placeholder="480">
+                            <span class="input-group-text">円</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">タグ</label>
+                        <input type="text" name="menu_tag" class="form-control" placeholder="例: 人気No.1">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">画像</label>
+                        <input type="file" name="menu_image" class="form-control" accept="image/*">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">説明</label>
+                        <textarea name="menu_description" class="form-control" rows="2" placeholder="メニューの説明"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-success">
+                            <span class="material-icons-outlined" style="vertical-align: middle;">add</span>
+                            追加する
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="settings-card">
+            <h3><span class="material-icons-outlined">list</span>登録済みメニュー</h3>
+            <?php if (empty($menus)): ?>
+            <p class="text-muted">まだ登録がありません</p>
+            <?php else: ?>
+            <div class="row g-3">
+                <?php foreach ($menus as $menu): ?>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <?php if ($menu['menu_image']): ?>
+                        <img src="/order/<?= htmlspecialchars($menu['menu_image']) ?>" class="card-img-top" alt="" style="height: 150px; object-fit: cover;">
+                        <?php else: ?>
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                            <span class="material-icons-outlined" style="font-size: 48px; color: #ccc;">restaurant</span>
+                        </div>
+                        <?php endif; ?>
+                        <div class="card-body">
+                            <?php if ($menu['menu_tag']): ?>
+                            <span class="badge bg-success mb-2"><?= htmlspecialchars($menu['menu_tag']) ?></span>
+                            <?php endif; ?>
+                            <h5 class="card-title"><?= htmlspecialchars($menu['menu_name']) ?></h5>
+                            <?php if ($menu['menu_description']): ?>
+                            <p class="card-text text-muted small"><?= htmlspecialchars($menu['menu_description']) ?></p>
+                            <?php endif; ?>
+                            <?php if ($menu['menu_price']): ?>
+                            <p class="card-text fw-bold text-success"><?= number_format($menu['menu_price']) ?>円</p>
+                            <?php endif; ?>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <form method="POST" style="display:inline;">
+                                <input type="hidden" name="action" value="delete_menu">
+                                <input type="hidden" name="menu_id" value="<?= $menu['id'] ?>">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('削除しますか？')">
+                                    <span class="material-icons-outlined" style="font-size: 16px;">delete</span>
+                                    削除
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+        </div>
+
+        <?php elseif ($activeTab === 'faq'): ?>
+        <!-- FAQタブ -->
+        <div class="settings-card">
+            <h3><span class="material-icons-outlined">help_outline</span>FAQを追加</h3>
+            <form method="POST">
+                <input type="hidden" name="action" value="add_faq">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">質問</label>
+                        <input type="text" name="faq_question" class="form-control" required placeholder="例: 注文の締め切りは何時ですか？">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">回答</label>
+                        <textarea name="faq_answer" class="form-control" rows="3" required placeholder="回答を入力してください"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-success">
+                            <span class="material-icons-outlined" style="vertical-align: middle;">add</span>
+                            追加する
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="settings-card">
+            <h3><span class="material-icons-outlined">list</span>登録済みFAQ</h3>
+            <?php if (empty($faqs)): ?>
+            <p class="text-muted">まだ登録がありません</p>
+            <?php else: ?>
+            <?php foreach ($faqs as $faq): ?>
+            <div class="testimonial-card">
+                <form method="POST" style="display:inline;">
+                    <input type="hidden" name="action" value="delete_faq">
+                    <input type="hidden" name="faq_id" value="<?= $faq['id'] ?>">
+                    <button type="submit" class="btn btn-sm btn-outline-danger delete-btn" onclick="return confirm('削除しますか？')">
+                        <span class="material-icons-outlined" style="font-size: 16px;">delete</span>
+                    </button>
+                </form>
+                <p class="mb-2 fw-bold" style="font-size: 15px;">Q. <?= htmlspecialchars($faq['question']) ?></p>
+                <p class="mb-0 text-muted" style="font-size: 14px;">A. <?= htmlspecialchars($faq['answer']) ?></p>
+            </div>
+            <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+
         <?php elseif ($activeTab === 'design'): ?>
         <!-- デザインタブ -->
         <form method="POST">
@@ -574,6 +886,12 @@ $activeTab = $_GET['tab'] ?? 'content';
                 <div class="row g-4">
                     <div class="col-md-4">
                         <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="settings[show_stats]" value="1" id="showStats" <?= ($settingsMap['show_stats']['setting_value'] ?? '1') === '1' ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="showStats">実績数字を表示</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" name="settings[show_gallery]" value="1" id="showGallery" <?= ($settingsMap['show_gallery']['setting_value'] ?? '1') === '1' ? 'checked' : '' ?>>
                             <label class="form-check-label" for="showGallery">お弁当ギャラリーを表示</label>
                         </div>
@@ -588,6 +906,24 @@ $activeTab = $_GET['tab'] ?? 'content';
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" name="settings[show_partners]" value="1" id="showPartners" <?= ($settingsMap['show_partners']['setting_value'] ?? '1') === '1' ? 'checked' : '' ?>>
                             <label class="form-check-label" for="showPartners">導入企業ロゴを表示</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="settings[show_faq]" value="1" id="showFaq" <?= ($settingsMap['show_faq']['setting_value'] ?? '1') === '1' ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="showFaq">FAQを表示</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="settings[show_company_info]" value="1" id="showCompanyInfo" <?= ($settingsMap['show_company_info']['setting_value'] ?? '1') === '1' ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="showCompanyInfo">会社情報を表示</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="settings[show_sticky_cta]" value="1" id="showStickyCta" <?= ($settingsMap['show_sticky_cta']['setting_value'] ?? '1') === '1' ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="showStickyCta">モバイル固定CTAを表示</label>
                         </div>
                     </div>
                 </div>
