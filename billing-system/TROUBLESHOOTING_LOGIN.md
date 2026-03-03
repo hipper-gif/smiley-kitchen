@@ -11,7 +11,7 @@
 ブラウザのコンソールには以下のエラーが表示:
 
 ```
-POST https://twinklemark.xsrv.jp/Smiley/meal-delivery/billing-system/api/auth.php?action=login 401 (Unauthorized)
+POST https://twinklemark.xsrv.jp/Smiley/meal-delivery/smiley-kitchen/billing-system/api/auth.php?action=login 401 (Unauthorized)
 ```
 
 ---
@@ -23,7 +23,7 @@ POST https://twinklemark.xsrv.jp/Smiley/meal-delivery/billing-system/api/auth.ph
 ブラウザで以下のURLにアクセス:
 
 ```
-https://twinklemark.xsrv.jp/Smiley/meal-delivery/billing-system/check_db_web.php
+https://twinklemark.xsrv.jp/Smiley/meal-delivery/smiley-kitchen/billing-system/check_db_web.php
 ```
 
 このページで以下を確認:
@@ -230,7 +230,7 @@ WHERE user_code = 'Smiley0007';
 
 1. ログインページにアクセス:
    ```
-   https://twinklemark.xsrv.jp/Smiley/meal-delivery/billing-system/pages/login.php
+   https://twinklemark.xsrv.jp/Smiley/meal-delivery/smiley-kitchen/billing-system/pages/login.php
    ```
 
 2. 以下の情報を入力:

@@ -18,8 +18,8 @@
 
 ### **システム環境**
 ```yaml
-本番環境: https://tw1nkle.com/Smiley/meal-delivery/billing-system/
-テスト環境: https://twinklemark.xsrv.jp/Smiley/meal-delivery/billing-system/
+本番環境: https://tw1nkle.com/Smiley/meal-delivery/smiley-kitchen/billing-system/
+テスト環境: https://twinklemark.xsrv.jp/Smiley/meal-delivery/smiley-kitchen/billing-system/
 GitHub: https://github.com/hipper-gif/billing-system.git
 技術構成: PHP 8.2.28 + MySQL 8.0 + Bootstrap 5.1.3 + Chart.js
 ホスティング: エックスサーバー スタンダードプラン

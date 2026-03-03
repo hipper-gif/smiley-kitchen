@@ -17,7 +17,7 @@
 
 1. ブラウザで以下のURLにアクセス:
    ```
-   https://twinklemark.xsrv.jp/Smiley/meal-delivery/billing-system/fix_password_hash.php
+   https://twinklemark.xsrv.jp/Smiley/meal-delivery/smiley-kitchen/billing-system/fix_password_hash.php
    ```
 
 2. 「**テストユーザーのパスワードハッシュを修正**」ボタンをクリック
@@ -82,7 +82,7 @@ mysql -u [username] -p [database] < sql/fix_test_user_password.sql
 ### ステップ1: 診断ツールで確認
 
 ```
-https://twinklemark.xsrv.jp/Smiley/meal-delivery/billing-system/check_db_web.php
+https://twinklemark.xsrv.jp/Smiley/meal-delivery/smiley-kitchen/billing-system/check_db_web.php
 ```
 
 以下が表示されればOK:
@@ -95,7 +95,7 @@ https://twinklemark.xsrv.jp/Smiley/meal-delivery/billing-system/check_db_web.php
 
 1. ログインページにアクセス:
    ```
-   https://twinklemark.xsrv.jp/Smiley/meal-delivery/billing-system/pages/login.php
+   https://twinklemark.xsrv.jp/Smiley/meal-delivery/smiley-kitchen/billing-system/pages/login.php
    ```
 
 2. ログイン情報を入力:

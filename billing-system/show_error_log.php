@@ -25,7 +25,7 @@ $logPaths = [
     __DIR__ . '/error_log',
     __DIR__ . '/../error_log',
     ini_get('error_log'),
-    '/home/hipper-gif/twinklemark.xsrv.jp/public_html/Smiley/meal-delivery/billing-system/error_log',
+    '/home/hipper-gif/twinklemark.xsrv.jp/public_html/Smiley/meal-delivery/smiley-kitchen/billing-system/error_log',
     '/var/log/php-error.log',
     '/tmp/php-error.log'
 ];

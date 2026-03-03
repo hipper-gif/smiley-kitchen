@@ -409,7 +409,7 @@ if (count($createdViews) === count($viewDefinitions)) {
     echo "3. PaymentManagerクラスの動作テスト\n";
     echo "4. API動作確認\n\n";
     
-    echo "🔗 メインシステム: " . (defined('BASE_URL') ? BASE_URL : 'https://twinklemark.xsrv.jp/Smiley/meal-delivery/billing-system/') . "\n";
+    echo "🔗 メインシステム: " . (defined('BASE_URL') ? BASE_URL : 'https://twinklemark.xsrv.jp/Smiley/meal-delivery/smiley-kitchen/billing-system/') . "\n";
     
 } else {
     echo "⚠️ セットアップ部分完了\n\n";

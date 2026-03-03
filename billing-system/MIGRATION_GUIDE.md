@@ -21,8 +21,8 @@ https://あなたのドメイン/api/migrate_products_table.php
 ```
 
 例：
-- テスト環境: `https://twinklemark.xsrv.jp/Smiley/meal-delivery/billing-system/api/migrate_products_table.php`
-- 本番環境: `https://tw1nkle.com/Smiley/meal-delivery/billing-system/api/migrate_products_table.php`
+- テスト環境: `https://twinklemark.xsrv.jp/Smiley/meal-delivery/smiley-kitchen/billing-system/api/migrate_products_table.php`
+- 本番環境: `https://tw1nkle.com/Smiley/meal-delivery/smiley-kitchen/billing-system/api/migrate_products_table.php`
 
 2. 成功すると以下のようなJSONレスポンスが表示されます：
 
