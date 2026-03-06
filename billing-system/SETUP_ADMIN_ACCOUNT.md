@@ -12,7 +12,7 @@
 
 1. ブラウザで以下のURLにアクセス:
    ```
-   https://twinklemark.xsrv.jp/Smiley/meal-delivery/billing-system/set_user_password.php
+   https://twinklemark.xsrv.jp/Smiley/meal-delivery/smiley-kitchen/billing-system/set_user_password.php
    ```
 
 2. 「**Smiley9999（管理者）**」のクイックボタンをクリック
@@ -118,7 +118,7 @@ WHERE user_code = 'Smiley9999';
 
 1. ログインページにアクセス:
    ```
-   https://twinklemark.xsrv.jp/Smiley/meal-delivery/billing-system/pages/login.php
+   https://twinklemark.xsrv.jp/Smiley/meal-delivery/smiley-kitchen/billing-system/pages/login.php
    ```
 
 2. ログイン情報を入力:

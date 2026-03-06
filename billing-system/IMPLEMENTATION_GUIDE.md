@@ -47,21 +47,22 @@ https://github.com/hipper-gif/billing-system/tree/claude/order-system-phase1-017
 
 ### 2. サーバー上のディレクトリ構成
 
-Xserverの `public_html/Smiley/meal-delivery/` に以下をアップロード:
+Xserverの `public_html/Smiley/meal-delivery/smiley-kitchen/` に以下をアップロード:
 
 ```
 public_html/
 └── Smiley/
     └── meal-delivery/
-        ├── common/              ← 新規フォルダ作成
-        │   ├── bootstrap.php
-        │   ├── config/
-        │   └── classes/
-        │
-        ├── billing-system/      ← 既存 (変更なし)
-        │   └── ...
-        │
-        └── order/               ← 新規フォルダ作成
+        └── smiley-kitchen/
+            ├── common/              ← 新規フォルダ作成
+            │   ├── bootstrap.php
+            │   ├── config/
+            │   └── classes/
+            │
+            ├── billing-system/      ← 既存
+            │   └── ...
+            │
+            └── order/               ← 新規フォルダ作成
             ├── index.php
             ├── signup.php
             ├── login.php
@@ -79,12 +80,12 @@ phpMyAdminで以下のSQLを実行（既に実行済み）:
 ### 4. URL構成
 
 **お客様向け（新規）:**
-- ランディングページ: `https://twinklemark.xsrv.jp/Smiley/meal-delivery/order/index.php`
-- 企業登録: `https://twinklemark.xsrv.jp/Smiley/meal-delivery/order/signup.php`
-- ログイン: `https://twinklemark.xsrv.jp/Smiley/meal-delivery/order/login.php`
+- ランディングページ: `https://twinklemark.xsrv.jp/Smiley/meal-delivery/smiley-kitchen/order/index.php`
+- 企業登録: `https://twinklemark.xsrv.jp/Smiley/meal-delivery/smiley-kitchen/order/signup.php`
+- ログイン: `https://twinklemark.xsrv.jp/Smiley/meal-delivery/smiley-kitchen/order/login.php`
 
 **管理者向け（既存・変更なし）:**
-- ダッシュボード: `https://twinklemark.xsrv.jp/Smiley/meal-delivery/billing-system/index.php`
+- ダッシュボード: `https://twinklemark.xsrv.jp/Smiley/meal-delivery/smiley-kitchen/billing-system/index.php`
 
 ## ✅ 実装のメリット
 
