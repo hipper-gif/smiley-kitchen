@@ -663,6 +663,7 @@ require_once __DIR__ . '/../includes/header.php';
                     </button>
                 </div>
                 <input type="hidden" id="full_amount_value" value="0">
+                <small id="amount_remaining_hint" class="text-muted"></small>
             </div>
 
             <div class="form-group">
@@ -858,9 +859,10 @@ function openPaymentModal(type, data) {
             企業: ${data.company_name}<br>
             利用者数: ${data.user_count}名<br>
             未回収合計: ¥${parseInt(data.outstanding_amount).toLocaleString()}<br>
-            <span class="text-warning">※ 入金額が未回収合計と一致する必要があります</span>
+            <span class="text-info">※ 分割払い可（未払い残高以下の金額を入力できます）</span>
         `;
         document.getElementById('amount').value = data.outstanding_amount;
+        document.getElementById('amount').max = data.outstanding_amount;
         document.getElementById('payment_method').value = 'bank_transfer';
     }
 
@@ -871,6 +873,27 @@ function openPaymentModal(type, data) {
 function setFullAmount() {
     const fullAmount = document.getElementById('full_amount_value').value;
     document.getElementById('amount').value = fullAmount;
+    updateAmountHint();
+}
+
+// 入金額変更時の残高表示
+document.getElementById('amount').addEventListener('input', updateAmountHint);
+function updateAmountHint() {
+    const hint = document.getElementById('amount_remaining_hint');
+    if (!hint) return;
+    const fullAmount = parseFloat(document.getElementById('full_amount_value').value) || 0;
+    const inputAmount = parseFloat(document.getElementById('amount').value) || 0;
+    if (fullAmount <= 0) { hint.textContent = ''; return; }
+    if (inputAmount > fullAmount) {
+        hint.textContent = '未払い残高を超えています';
+        hint.className = 'text-danger';
+    } else if (inputAmount > 0 && inputAmount < fullAmount) {
+        hint.textContent = `分割払い: 入金後の残高 ¥${(fullAmount - inputAmount).toLocaleString()}`;
+        hint.className = 'text-muted';
+    } else {
+        hint.textContent = '';
+        hint.className = 'text-muted';
+    }
 }
 
 function closePaymentModal() {

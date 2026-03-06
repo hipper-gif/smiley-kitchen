@@ -668,7 +668,8 @@
                         <div class="row mt-3">
                             <div class="col-md-6">
                                 <label class="form-label">入金金額</label>
-                                <input type="number" class="form-control" id="payment-amount" readonly>
+                                <input type="number" class="form-control" id="payment-amount" step="1" min="1">
+                                <div class="form-text text-muted" id="payment-amount-hint"></div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">参照番号 (振込番号等)</label>
@@ -718,23 +719,45 @@
         });
 
         // 満額入金ボタン処理
+        let currentOutstandingAmount = 0;
         function recordFullPayment(invoiceNumber, amount) {
+            currentOutstandingAmount = amount;
             // モーダルに情報を設定
             document.getElementById('modal-invoice-number').textContent = invoiceNumber;
             document.getElementById('modal-amount').textContent = `¥${amount.toLocaleString()}`;
             document.getElementById('payment-amount').value = amount;
-            
+            document.getElementById('payment-amount-hint').textContent = `未払い残高: ¥${amount.toLocaleString()}（分割払い可）`;
+
             // 企業名を取得（実際は請求書番号から取得）
             const companyName = document.querySelector(`input[value="${invoiceNumber}"]`)
                 ?.closest('.invoice-item')
                 ?.querySelector('.company-name')
                 ?.textContent || '不明';
             document.getElementById('modal-company-name').textContent = companyName;
-            
+
             // モーダル表示
             const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
             modal.show();
         }
+
+        // 入金金額のバリデーション
+        document.getElementById('payment-amount').addEventListener('input', function() {
+            const val = parseFloat(this.value) || 0;
+            const hint = document.getElementById('payment-amount-hint');
+            if (val > currentOutstandingAmount) {
+                hint.textContent = `未払い残高（¥${currentOutstandingAmount.toLocaleString()}）を超えています`;
+                hint.classList.replace('text-muted', 'text-danger') || hint.classList.add('text-danger');
+            } else if (val > 0 && val < currentOutstandingAmount) {
+                const remaining = currentOutstandingAmount - val;
+                hint.textContent = `分割払い: 入金後の残高 ¥${remaining.toLocaleString()}`;
+                hint.classList.remove('text-danger');
+                hint.classList.add('text-muted');
+            } else {
+                hint.textContent = `未払い残高: ¥${currentOutstandingAmount.toLocaleString()}（分割払い可）`;
+                hint.classList.remove('text-danger');
+                hint.classList.add('text-muted');
+            }
+        });
 
         // 入金実行処理
         function executePayment() {

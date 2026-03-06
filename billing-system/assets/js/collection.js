@@ -532,11 +532,23 @@ class CollectionManager {
         
         const companyName = row.dataset.companyName;
         const amount = parseFloat(row.dataset.amount);
-        
+        this._currentOutstanding = amount;
+
         // モーダルに情報を設定
         document.getElementById('modal-company-name').textContent = companyName;
         document.getElementById('modal-amount').textContent = this.formatCurrency(amount);
         document.getElementById('modal-invoice-id').value = invoiceId;
+
+        // 入金金額フィールドがあれば設定（分割払い対応）
+        const amountInput = document.getElementById('modal-payment-amount');
+        if (amountInput) {
+            amountInput.value = amount;
+            amountInput.max = amount;
+        }
+        const amountHint = document.getElementById('modal-payment-amount-hint');
+        if (amountHint) {
+            amountHint.textContent = `未払い残高: ${this.formatCurrency(amount)}（分割払い可）`;
+        }
         
         // 今日の日付を設定
         const today = new Date().toISOString().split('T')[0];
@@ -610,9 +622,19 @@ class CollectionManager {
             const formData = new FormData(form);
             const invoiceId = document.getElementById('modal-invoice-id').value;
             const companyName = document.getElementById('modal-company-name').textContent;
-            const amount = document.getElementById('modal-amount').textContent;
-            
+            const amountInput = document.getElementById('modal-payment-amount');
+            const paymentAmount = amountInput ? parseFloat(amountInput.value) : this._currentOutstanding;
+            const displayAmount = this.formatCurrency(paymentAmount);
+
             // バリデーション
+            if (!paymentAmount || paymentAmount <= 0) {
+                this.showValidationError('入金額を入力してください', 'modal-payment-amount');
+                return;
+            }
+            if (paymentAmount > this._currentOutstanding + 0.01) {
+                this.showValidationError('入金額が未払い残高を超えています', 'modal-payment-amount');
+                return;
+            }
             if (!formData.get('payment_method')) {
                 this.showValidationError('支払方法を選択してください', 'payment-method');
                 return;
@@ -624,9 +646,11 @@ class CollectionManager {
             }
             
             // 確認ダイアログ
+            const isPartial = paymentAmount < this._currentOutstanding - 0.01;
+            const partialNote = isPartial ? `\n（分割払い: 残高 ${this.formatCurrency(this._currentOutstanding - paymentAmount)}）` : '';
             const confirmed = await this.showConfirmDialog(
                 '入金記録確認',
-                `${companyName}\n${amount}\n\nこの内容で入金記録を行いますか？\n\n※この操作は取り消せません。`,
+                `${companyName}\n${displayAmount}${partialNote}\n\nこの内容で入金記録を行いますか？\n\n※この操作は取り消せません。`,
                 'confirm-payment'
             );
             
@@ -644,6 +668,7 @@ class CollectionManager {
                 body: JSON.stringify({
                     action: 'record_full_payment',
                     invoice_id: parseInt(invoiceId),
+                    amount: paymentAmount,
                     payment_method: formData.get('payment_method'),
                     payment_date: formData.get('payment_date'),
                     notes: formData.get('notes'),

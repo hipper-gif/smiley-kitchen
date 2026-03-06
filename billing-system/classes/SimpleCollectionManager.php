@@ -436,8 +436,8 @@ class SimpleCollectionManager {
             // 合計未払い額を計算
             $totalOutstanding = array_sum(array_column($orders, 'outstanding'));
 
-            // 合計チェック
-            if (abs($amount - $totalOutstanding) > 0.01) { // 浮動小数点の誤差を考慮
+            // 超過チェック（分割払い対応: 未払い合計以下なら許可）
+            if ($amount > $totalOutstanding + 0.01) {
                 return [
                     'success' => false,
                     'check_failed' => true,
@@ -445,7 +445,7 @@ class SimpleCollectionManager {
                     'actual_amount' => $amount,
                     'difference' => $amount - $totalOutstanding,
                     'message' => sprintf(
-                        '入金額（¥%s）と未払い合計（¥%s）が一致しません。差額: ¥%s',
+                        '入金額（¥%s）が未払い合計（¥%s）を超えています。差額: ¥%s',
                         number_format($amount),
                         number_format($totalOutstanding),
                         number_format($amount - $totalOutstanding)
@@ -478,8 +478,11 @@ class SimpleCollectionManager {
 
             $paymentId = $conn->lastInsertId();
 
-            // 各注文に按分（未払い分を全額割り当て）
+            // 各注文に按分（古い注文から順に割り当て、分割払い対応）
+            $remainingAmount = $amount;
             foreach ($orders as $order) {
+                if ($remainingAmount <= 0) break;
+                $allocate = min($remainingAmount, $order['outstanding']);
                 $detailSql = "
                     INSERT INTO order_payment_details (payment_id, order_id, allocated_amount)
                     VALUES (:payment_id, :order_id, :allocated_amount)
@@ -488,17 +491,25 @@ class SimpleCollectionManager {
                 $stmt->execute([
                     ':payment_id' => $paymentId,
                     ':order_id' => $order['id'],
-                    ':allocated_amount' => $order['outstanding']
+                    ':allocated_amount' => $allocate
                 ]);
+                $remainingAmount -= $allocate;
             }
 
             $conn->commit();
+
+            $remainingBalance = $totalOutstanding - $amount;
+            $partialNote = $remainingBalance > 0.01
+                ? sprintf('（残高: ¥%s）', number_format($remainingBalance))
+                : '';
 
             return [
                 'success' => true,
                 'payment_id' => $paymentId,
                 'orders_count' => count($orders),
-                'message' => sprintf('企業単位の入金を記録しました（%d件の注文に按分）', count($orders))
+                'amount' => $amount,
+                'remaining_balance' => $remainingBalance,
+                'message' => sprintf('企業単位の入金を記録しました（%d件の注文に按分）%s', count($orders), $partialNote)
             ];
 
         } catch (Exception $e) {
