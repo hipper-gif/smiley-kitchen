@@ -848,8 +848,10 @@ function openPaymentModal(type, data) {
         paymentInfo.innerHTML = `
             <strong>個人別入金</strong><br>
             利用者: ${data.user_name}<br>
-            未回収: ¥${parseInt(data.outstanding_amount).toLocaleString()}
+            未回収: ¥${parseInt(data.outstanding_amount).toLocaleString()}<br>
+            <span class="text-info">※ 分割払い可（未払い残高以下の金額を入力できます）</span>
         `;
+        document.getElementById('amount').value = data.outstanding_amount;
         document.getElementById('amount').max = data.outstanding_amount;
         document.getElementById('payment_method').value = 'cash';
     } else {

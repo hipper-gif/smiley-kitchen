@@ -32,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // 必要なクラスを読み込み
 require_once __DIR__ . '/../classes/PaymentManager.php';
+require_once __DIR__ . '/../classes/SimpleCollectionManager.php';
 require_once __DIR__ . '/../classes/SecurityHelper.php';
 
 /**
@@ -81,6 +82,7 @@ function sendValidationError($errors) {
 try {
     // PaymentManager初期化
     $paymentManager = new PaymentManager();
+    $collectionManager = new SimpleCollectionManager();
     
     // リクエストメソッド別処理
     $method = $_SERVER['REQUEST_METHOD'];
@@ -170,15 +172,25 @@ try {
             handleSystemStatus($paymentManager);
             break;
             
+        // 部分入金（個人別）
+        case 'record_partial_payment':
+            handleRecordPartialPayment($collectionManager);
+            break;
+
+        // 部分入金（企業別）
+        case 'record_company_partial_payment':
+            handleRecordCompanyPartialPayment($collectionManager);
+            break;
+
         // 既存互換性（従来のAPI）
         case 'list':
             handleLegacyPaymentList($paymentManager);
             break;
-            
+
         case 'stats':
             handleLegacyPaymentStats($paymentManager);
             break;
-            
+
         default:
             sendError("未対応のアクション: {$action}", 404);
     }
@@ -509,6 +521,86 @@ function handleSystemStatus($paymentManager) {
     ];
     
     sendResponse($status);
+}
+
+/**
+ * 部分入金記録処理（個人別）
+ */
+function handleRecordPartialPayment($collectionManager) {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        sendError('POSTメソッドが必要です', 405);
+    }
+
+    $errors = [];
+    foreach (['user_id', 'payment_method', 'payment_date', 'amount'] as $field) {
+        if (empty($_POST[$field])) {
+            $errors[$field] = "{$field}は必須項目です";
+        }
+    }
+    if (!empty($errors)) {
+        sendValidationError($errors);
+    }
+
+    $amount = filter_var($_POST['amount'], FILTER_VALIDATE_FLOAT);
+    if ($amount === false || $amount <= 0) {
+        sendValidationError(['amount' => '入金額は0より大きい数値である必要があります']);
+    }
+
+    $result = $collectionManager->recordPayment([
+        'user_id'          => $_POST['user_id'],
+        'payment_date'     => $_POST['payment_date'],
+        'amount'           => $amount,
+        'payment_method'   => $_POST['payment_method'],
+        'reference_number' => $_POST['reference_number'] ?? '',
+        'notes'            => $_POST['notes'] ?? '',
+        'created_by'       => 'api'
+    ]);
+
+    if ($result['success']) {
+        sendResponse($result);
+    } else {
+        sendError($result['error'] ?? '入金記録に失敗しました', 400);
+    }
+}
+
+/**
+ * 部分入金記録処理（企業別）
+ */
+function handleRecordCompanyPartialPayment($collectionManager) {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        sendError('POSTメソッドが必要です', 405);
+    }
+
+    $errors = [];
+    foreach (['company_name', 'payment_method', 'payment_date', 'amount'] as $field) {
+        if (empty($_POST[$field])) {
+            $errors[$field] = "{$field}は必須項目です";
+        }
+    }
+    if (!empty($errors)) {
+        sendValidationError($errors);
+    }
+
+    $amount = filter_var($_POST['amount'], FILTER_VALIDATE_FLOAT);
+    if ($amount === false || $amount <= 0) {
+        sendValidationError(['amount' => '入金額は0より大きい数値である必要があります']);
+    }
+
+    $result = $collectionManager->recordCompanyPayment([
+        'company_name'     => $_POST['company_name'],
+        'payment_date'     => $_POST['payment_date'],
+        'amount'           => $amount,
+        'payment_method'   => $_POST['payment_method'],
+        'reference_number' => $_POST['reference_number'] ?? '',
+        'notes'            => $_POST['notes'] ?? '',
+        'created_by'       => 'api'
+    ]);
+
+    if ($result['success']) {
+        sendResponse($result);
+    } else {
+        sendError($result['error'] ?? $result['message'] ?? '企業入金記録に失敗しました', 400);
+    }
 }
 
 /**
