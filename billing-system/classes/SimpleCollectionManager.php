@@ -72,7 +72,7 @@ class SimpleCollectionManager {
                     'start' => $startDate,
                     'end' => $endDate
                 ],
-                'error' => defined('DEBUG_MODE') && DEBUG_MODE ? $e->getMessage() : 'エラーが発生しました。'
+                'error' => $e->getMessage()
             ];
         }
     }
@@ -377,10 +377,16 @@ class SimpleCollectionManager {
 
             $conn->commit();
 
+            $remainingBalance = $totalOutstanding - $amount;
+            $partialNote = $remainingBalance > 0.01
+                ? sprintf('（残高: ¥%s）', number_format($remainingBalance))
+                : '';
+
             return [
                 'success' => true,
                 'payment_id' => $paymentId,
-                'message' => '入金を記録しました'
+                'remaining_balance' => $remainingBalance,
+                'message' => sprintf('入金を記録しました%s', $partialNote)
             ];
 
         } catch (Exception $e) {
@@ -390,7 +396,7 @@ class SimpleCollectionManager {
             error_log("SimpleCollectionManager::recordPayment Error: " . $e->getMessage());
             return [
                 'success' => false,
-                'error' => defined('DEBUG_MODE') && DEBUG_MODE ? $e->getMessage() : 'エラーが発生しました。'
+                'error' => $e->getMessage()
             ];
         }
     }
@@ -519,7 +525,7 @@ class SimpleCollectionManager {
             error_log("SimpleCollectionManager::recordCompanyPayment Error: " . $e->getMessage());
             return [
                 'success' => false,
-                'error' => defined('DEBUG_MODE') && DEBUG_MODE ? $e->getMessage() : 'エラーが発生しました。'
+                'error' => $e->getMessage()
             ];
         }
     }
