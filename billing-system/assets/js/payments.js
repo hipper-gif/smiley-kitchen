@@ -128,7 +128,6 @@ function viewPaymentDetail(paymentId) {
             console.error('支払い詳細取得エラー:', error);
             showAlert('error', '支払い詳細の取得中にエラーが発生しました');
         });
-    }
 }
 
 /**
@@ -573,7 +572,6 @@ window.addEventListener('unhandledrejection', function(e) {
     console.error('Promise Rejection:', e.reason);
     showAlert('error', '通信エラーが発生しました。接続を確認してお試しください。');
 });
-}
 
 /**
  * 支払い詳細をモーダルに表示
@@ -790,14 +788,16 @@ function setupFormSubmissionHandlers() {
                 showAlert('warning', 'キャンセル理由を入力してください');
                 return false;
             }
-            
+
             if (!confirm('支払い記録を完全にキャンセルしますか？\nこの操作は元に戻せません。')) {
                 e.preventDefault();
                 return false;
             }
-            
+
             // 送信ボタンを無効化
             const submitBtn = this.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>処理中...';
         });
+    }
+}

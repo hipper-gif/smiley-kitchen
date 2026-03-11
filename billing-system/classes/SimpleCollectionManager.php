@@ -89,6 +89,69 @@ class SimpleCollectionManager {
     }
 
     /**
+     * ダッシュボード用の全体統計を取得
+     * - 今月入金額: payment_dateベースで今月の入金合計
+     * - 未回収金額: 全期間の未回収合計
+     */
+    public function getDashboardStats() {
+        try {
+            $conn = $this->db->getConnection();
+            $startDate = date('Y-m-01');
+            $endDate = date('Y-m-t');
+
+            // 今月入金額（入金日ベース）
+            $collectedSql = "
+                SELECT COALESCE(SUM(amount), 0) as collected_amount
+                FROM order_payments
+                WHERE payment_date BETWEEN :start_date AND :end_date
+            ";
+            $stmt = $conn->prepare($collectedSql);
+            $stmt->execute([':start_date' => $startDate, ':end_date' => $endDate]);
+            $collected = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            // 全期間の未回収金額
+            $outstandingSql = "
+                SELECT
+                    COUNT(*) as total_orders,
+                    COALESCE(SUM(o.total_amount), 0) as total_amount,
+                    COALESCE(SUM(COALESCE(opd_sum.paid_amount, 0)), 0) as total_paid
+                FROM orders o
+                LEFT JOIN (
+                    SELECT order_id, SUM(allocated_amount) as paid_amount
+                    FROM order_payment_details
+                    GROUP BY order_id
+                ) opd_sum ON o.id = opd_sum.order_id
+            ";
+            $stmt = $conn->prepare($outstandingSql);
+            $stmt->execute();
+            $outstanding = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $totalAmount = (float)($outstanding['total_amount'] ?? 0);
+            $totalPaid = (float)($outstanding['total_paid'] ?? 0);
+
+            return [
+                'success' => true,
+                'total_orders' => (int)($outstanding['total_orders'] ?? 0),
+                'collected_amount' => (float)($collected['collected_amount'] ?? 0),
+                'outstanding_amount' => $totalAmount - $totalPaid,
+                'total_amount' => $totalAmount,
+                'total_paid' => $totalPaid
+            ];
+
+        } catch (Exception $e) {
+            error_log("SimpleCollectionManager::getDashboardStats Error: " . $e->getMessage());
+            return [
+                'success' => false,
+                'total_orders' => 0,
+                'collected_amount' => 0,
+                'outstanding_amount' => 0,
+                'total_amount' => 0,
+                'total_paid' => 0
+            ];
+        }
+    }
+
+    /**
      * 未回収の注文一覧を取得
      */
     public function getOutstandingOrders($filters = []) {
@@ -172,16 +235,13 @@ class SimpleCollectionManager {
 
     /**
      * アラート情報を取得
+     * 全期間の未払い注文を対象にする（期間フィルタなし）
      */
     public function getAlerts($startDate = null, $endDate = null) {
         try {
-            // 期間指定がない場合は今月
-            if (!$startDate || !$endDate) {
-                $startDate = date('Y-m-01');
-                $endDate = date('Y-m-t');
-            }
+            $conn = $this->db->getConnection();
 
-            // 期限切れ（30日以上経過）- 未払い残高がある注文のみカウント
+            // 期限切れ（配達日から30日以上経過）- 未払い残高がある注文のみカウント
             $overdueSql = "
                 SELECT
                     COUNT(*) as count,
@@ -192,16 +252,15 @@ class SimpleCollectionManager {
                     FROM order_payment_details
                     GROUP BY order_id
                 ) paid ON o.id = paid.order_id
-                WHERE o.delivery_date BETWEEN :start_date AND :end_date
-                AND DATEDIFF(CURDATE(), o.delivery_date) > 30
+                WHERE DATEDIFF(CURDATE(), o.delivery_date) > 30
                 AND (o.total_amount - COALESCE(paid.allocated_total, 0)) > 0
             ";
 
-            $stmt = $this->db->getConnection()->prepare($overdueSql);
-            $stmt->execute([':start_date' => $startDate, ':end_date' => $endDate]);
+            $stmt = $conn->prepare($overdueSql);
+            $stmt->execute();
             $overdue = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // 期限間近（14-30日）- 未払い残高がある注文のみカウント
+            // 期限間近（配達日から14-30日経過）- 未払い残高がある注文のみカウント
             $dueSoonSql = "
                 SELECT
                     COUNT(*) as count,
@@ -212,13 +271,12 @@ class SimpleCollectionManager {
                     FROM order_payment_details
                     GROUP BY order_id
                 ) paid ON o.id = paid.order_id
-                WHERE o.delivery_date BETWEEN :start_date AND :end_date
-                AND DATEDIFF(CURDATE(), o.delivery_date) BETWEEN 14 AND 30
+                WHERE DATEDIFF(CURDATE(), o.delivery_date) BETWEEN 14 AND 30
                 AND (o.total_amount - COALESCE(paid.allocated_total, 0)) > 0
             ";
 
-            $stmt = $this->db->getConnection()->prepare($dueSoonSql);
-            $stmt->execute([':start_date' => $startDate, ':end_date' => $endDate]);
+            $stmt = $conn->prepare($dueSoonSql);
+            $stmt->execute();
             $dueSoon = $stmt->fetch(PDO::FETCH_ASSOC);
 
             return [

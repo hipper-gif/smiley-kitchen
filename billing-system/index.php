@@ -16,8 +16,8 @@ $includeChartJS = true;
 try {
     $collectionManager = new SimpleCollectionManager();
 
-    // 統計データ取得（ordersテーブルから直接）
-    $statistics = $collectionManager->getMonthlyCollectionStats();
+    // 統計データ取得（全期間の未回収 + 今月の入金額）
+    $statistics = $collectionManager->getDashboardStats();
     $alerts = $collectionManager->getAlerts();
     $trendData = $collectionManager->getMonthlyTrend(6);
 

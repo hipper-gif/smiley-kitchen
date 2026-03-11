@@ -143,8 +143,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_issue_receipts']
 }
 
 try {
-    // 統計データ取得
-    $statistics = $collectionManager->getMonthlyCollectionStats();
+    // 統計データ取得（ダッシュボード用：全期間の未回収 + 今月の入金額）
+    $statistics = $collectionManager->getDashboardStats();
     $alerts = $collectionManager->getAlerts();
     $hasAnyOrders = $collectionManager->hasAnyOrders();
 
@@ -305,6 +305,52 @@ require_once __DIR__ . '/../includes/header.php';
         padding: 20px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+    /* クリッカブル統計カード */
+    .stat-card {
+        cursor: pointer;
+        user-select: none;
+    }
+    .stat-card:active {
+        transform: translateY(0) !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+    .stat-value {
+        transition: color 0.2s ease;
+    }
+    .stat-card:hover .stat-value {
+        color: var(--primary-blue);
+    }
+    /* クリッカブル金額セル */
+    .amount-clickable {
+        cursor: pointer;
+        color: #1976D2;
+        transition: all 0.2s ease;
+        text-decoration: underline;
+        text-decoration-style: dotted;
+        text-underline-offset: 3px;
+    }
+    .amount-clickable:hover {
+        color: #0D47A1;
+        text-decoration-style: solid;
+        background-color: rgba(33, 150, 243, 0.08);
+        border-radius: 4px;
+    }
+    /* number input 改善 */
+    .form-group input[type="number"] {
+        -moz-appearance: textfield;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+    .form-group input[type="number"]::-webkit-outer-spin-button,
+    .form-group input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    .form-group input[type="number"]:focus {
+        border-color: #2196F3;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+    }
 </style>
 
 <!-- メインコンテンツ -->
@@ -349,11 +395,11 @@ require_once __DIR__ . '/../includes/header.php';
 <!-- 統計カード -->
 <div class="row g-4 mb-4">
     <div class="col-md-3">
-        <div class="stat-card success">
+        <div class="stat-card success" onclick="document.getElementById('history').scrollIntoView({behavior:'smooth'})" title="入金履歴を表示">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <div class="stat-value"><?php echo number_format($statistics['collected_amount'] ?? 0); ?></div>
-                    <div class="stat-label">今月入金額 (円)</div>
+                    <div class="stat-value">¥<?php echo number_format($statistics['collected_amount'] ?? 0); ?></div>
+                    <div class="stat-label">今月入金額</div>
                 </div>
                 <span class="material-icons stat-icon" style="color: var(--success-green);">payments</span>
             </div>
@@ -361,11 +407,11 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 
     <div class="col-md-3">
-        <div class="stat-card warning">
+        <div class="stat-card warning" onclick="document.querySelector('.receivables-table').scrollIntoView({behavior:'smooth'})" title="売掛残高一覧を表示">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <div class="stat-value"><?php echo number_format($statistics['outstanding_amount'] ?? 0); ?></div>
-                    <div class="stat-label">未回収金額 (円)</div>
+                    <div class="stat-value">¥<?php echo number_format($statistics['outstanding_amount'] ?? 0); ?></div>
+                    <div class="stat-label">未回収金額</div>
                 </div>
                 <span class="material-icons stat-icon" style="color: var(--warning-amber);">account_balance_wallet</span>
             </div>
@@ -373,10 +419,10 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 
     <div class="col-md-3">
-        <div class="stat-card error">
+        <div class="stat-card error" onclick="document.querySelector('.receivables-table').scrollIntoView({behavior:'smooth'})" title="期限切れ一覧を表示">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <div class="stat-value"><?php echo $alerts['overdue']['count'] ?? 0; ?></div>
+                    <div class="stat-value"><?php echo $alerts['overdue']['count'] ?? 0; ?><span style="font-size: 1rem; font-weight: 400;"> 件</span></div>
                     <div class="stat-label">期限切れ件数</div>
                 </div>
                 <span class="material-icons stat-icon" style="color: var(--error-red);">error</span>
@@ -385,10 +431,10 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 
     <div class="col-md-3">
-        <div class="stat-card info">
+        <div class="stat-card info" onclick="document.querySelector('.receivables-table').scrollIntoView({behavior:'smooth'})" title="要対応一覧を表示">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <div class="stat-value"><?php echo $alerts['due_soon']['count'] ?? 0; ?></div>
+                    <div class="stat-value"><?php echo $alerts['due_soon']['count'] ?? 0; ?><span style="font-size: 1rem; font-weight: 400;"> 件</span></div>
                     <div class="stat-label">要対応件数（14-30日）</div>
                 </div>
                 <span class="material-icons stat-icon" style="color: var(--info-blue);">schedule</span>
@@ -504,7 +550,11 @@ require_once __DIR__ . '/../includes/header.php';
                 <td><?php echo $item['total_orders']; ?>件</td>
                 <td class="amount-cell">¥<?php echo number_format($item['total_ordered']); ?></td>
                 <td class="amount-cell">¥<?php echo number_format($item['total_paid']); ?></td>
-                <td class="amount-cell"><strong>¥<?php echo number_format($item['outstanding_amount']); ?></strong></td>
+                <td class="amount-cell amount-clickable"
+                    onclick='openPaymentModal("<?php echo $viewType; ?>", <?php echo htmlspecialchars(json_encode($item), ENT_QUOTES, 'UTF-8'); ?>)'
+                    title="クリックして入金を記録">
+                    <strong>¥<?php echo number_format($item['outstanding_amount']); ?></strong>
+                </td>
                 <td>
                     <button class="btn btn-material btn-sm btn-success"
                             onclick='openPaymentModal("<?php echo $viewType; ?>", <?php echo htmlspecialchars(json_encode($item), ENT_QUOTES, 'UTF-8'); ?>)'>
@@ -592,7 +642,11 @@ require_once __DIR__ . '/../includes/header.php';
                         <?php echo htmlspecialchars($payment['company_name']); ?>
                     <?php endif; ?>
                 </td>
-                <td class="amount-cell">¥<?php echo number_format($payment['amount']); ?></td>
+                <td class="amount-cell amount-clickable"
+                    onclick='openEditPaymentModal(<?php echo htmlspecialchars(json_encode($payment), ENT_QUOTES, "UTF-8"); ?>)'
+                    title="クリックして編集">
+                    ¥<?php echo number_format($payment['amount']); ?>
+                </td>
                 <td>
                     <?php
                     $methods = [
@@ -658,7 +712,7 @@ require_once __DIR__ . '/../includes/header.php';
             <div class="form-group">
                 <label for="amount">入金額 *</label>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="number" name="amount" id="amount" required min="1" step="0.01" style="flex: 1;">
+                    <input type="number" name="amount" id="amount" required min="1" step="1" style="flex: 1;" inputmode="numeric">
                     <button type="button" class="btn btn-material btn-info" onclick="setFullAmount()" id="fullAmountBtn">
                         <span class="material-icons" style="font-size: 1rem; vertical-align: middle;">account_balance_wallet</span>
                         満額入金
@@ -717,7 +771,7 @@ require_once __DIR__ . '/../includes/header.php';
 
             <div class="form-group">
                 <label for="edit_amount">入金額 *</label>
-                <input type="number" name="amount" id="edit_amount" required min="1" step="0.01">
+                <input type="number" name="amount" id="edit_amount" required min="1" step="1" inputmode="numeric">
             </div>
 
             <div class="form-group">
